@@ -1,0 +1,109 @@
+// -------- PINES --------
+
+// DIP
+int d0 = PA0;
+int d1 = PA1;
+int d2 = PA2;
+int d3 = PA3;
+
+// LEDs
+int WARNING = PB0;
+int READY   = PB1;
+int WORK    = PB2;
+int BOMBA   = PB3;
+
+// Display
+int segA = PB4;
+int segB = PB5;
+int segC = PB6;
+int segD = PB7;
+int segE = PB8;
+int segF = PB9;
+int segG = PB10;
+
+// -------- TABLA --------
+int tabla[9][7] = {
+  {1,1,1,1,1,1,0},
+  {0,1,1,0,0,0,0},
+  {1,1,0,1,1,0,1},
+  {1,1,1,1,0,0,1},
+  {0,1,1,0,0,1,1},
+  {1,0,1,1,0,1,1},
+  {1,0,1,1,1,1,1},
+  {1,1,1,0,0,0,0},
+  {1,1,1,1,1,1,1}
+};
+
+int bomba = 0;
+
+// -------- SETUP --------
+void setup() {
+
+  pinMode(d0, INPUT);
+  pinMode(d1, INPUT);
+  pinMode(d2, INPUT);
+  pinMode(d3, INPUT);
+
+  pinMode(WARNING, OUTPUT);
+  pinMode(READY, OUTPUT);
+  pinMode(WORK, OUTPUT);
+  pinMode(BOMBA, OUTPUT);
+
+  pinMode(segA, OUTPUT);
+  pinMode(segB, OUTPUT);
+  pinMode(segC, OUTPUT);
+  pinMode(segD, OUTPUT);
+  pinMode(segE, OUTPUT);
+  pinMode(segF, OUTPUT);
+  pinMode(segG, OUTPUT);
+}
+
+// -------- LEER NIVEL --------
+int leerNivel() {
+  int b0 = digitalRead(d0);
+  int b1 = digitalRead(d1);
+  int b2 = digitalRead(d2);
+  int b3 = digitalRead(d3);
+
+  return (b3<<3) | (b2<<2) | (b1<<1) | b0;
+}
+
+// -------- DISPLAY --------
+void mostrarNumero(int n) {
+  digitalWrite(segA, tabla[n][0]);
+  digitalWrite(segB, tabla[n][1]);
+  digitalWrite(segC, tabla[n][2]);
+  digitalWrite(segD, tabla[n][3]);
+  digitalWrite(segE, tabla[n][4]);
+  digitalWrite(segF, tabla[n][5]);
+  digitalWrite(segG, tabla[n][6]);
+}
+
+// -------- LOOP --------
+void loop() {
+
+  int nivel = leerNivel();
+
+  if (nivel > 8) nivel = 8;
+
+  // WARNING
+  digitalWrite(WARNING, nivel < 2);
+
+  // READY
+  digitalWrite(READY, nivel > 3);
+
+  // BOMBA
+  if (nivel > 3) bomba = 1;
+  if (nivel == 0) bomba = 0;
+
+  // WORK
+  digitalWrite(WORK, bomba);
+
+  // SALIDA
+  digitalWrite(BOMBA, bomba);
+
+  // DISPLAY
+  mostrarNumero(nivel);
+
+  delay(100);
+}
